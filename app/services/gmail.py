@@ -1,37 +1,42 @@
-from typing import List
+from typing import List, Any
 import base64
 
 from googleapiclient.discovery import Resource
+
+from app.constants import SEARCH_QUERY
 from app.services.tt_automation import TtAutomation
 
-def extract_email_data(service:Resource,messages, from_filter: str = "admin") -> dict:
+
+def extract_email_data(service: Resource, messages) -> List[Any]:
     email_list = []
+    allowed_file_names = ["tt", "time-table", "time tabel", "timetable"]
+
     for message in messages:
-        # Fetch full message details
+        # Fetch full message details, but only request the fields we need
         msg = service.users().messages().get(
             userId="me",
             id=message["id"],
-            format="full"
+            fields="id,threadId,labelIds,snippet,payload,internalDate"
         ).execute()
 
-        # Extract headers
-        headers = {h["name"]: h["value"] for h in msg["payload"]["headers"]}
-
-        subject = headers.get("Subject", "No Subject")
-        from_addr = headers.get("From", "Unknown Sender")
-        to_addr = headers.get("To", "Unknown Recipient")
+        # Extract headers more efficiently
+        headers = msg["payload"]["headers"]
+        subject = next((h["value"] for h in headers if h["name"] == "Subject"), "No Subject")
+        from_addr = next((h["value"] for h in headers if h["name"] == "From"), "Unknown Sender")
+        # Process attachments more efficiently
         attachments = []
-        if "parts" in msg["payload"]:
-            for part in msg["payload"]["parts"]:
-                if "filename" in part and part["filename"] and "attachmentId" in part["body"]:
+        parts = msg["payload"].get("parts", [])
+
+        for part in parts:
+            if part.get("filename") and part.get("body", {}).get("attachmentId"):
+                filename = part["filename"].lower()
+
+                if any(allowed_name in filename for allowed_name in allowed_file_names):
                     attachments.append({
                         "filename": part["filename"],
-                        "mimeType": part["mimeType"],
                         "attachmentId": part["body"]["attachmentId"],
-                        "size": part["body"].get("size", 0)
                     })
 
-        # Compile email data
         email_data = {
             "id": msg["id"],
             "threadId": msg["threadId"],
@@ -39,14 +44,13 @@ def extract_email_data(service:Resource,messages, from_filter: str = "admin") ->
             "snippet": msg.get("snippet", ""),
             "subject": subject,
             "from": from_addr,
-            # "to": to_addr,
             "attachments": attachments,
             "internalDate": msg.get("internalDate")
         }
+
         email_list.append(email_data)
 
-    return {"emails": email_list}
-
+    return  email_list
 def get_all_emails(automation: TtAutomation, max_results: int = 10):
     try:
         service: Resource = automation.gmail_service
@@ -57,11 +61,11 @@ def get_all_emails(automation: TtAutomation, max_results: int = 10):
         results = service.users().messages().list(
             userId='me',
             maxResults=max_results,
-            q= "TIME TABLE"
+            q=SEARCH_QUERY
         ).execute()
         messages = results.get("messages")
         msg = extract_email_data(service, messages)
-        return msg["emails"][1]
+        return msg
     except Exception as e:
         print(f"Failed to get emails from Google API service with error message: \n", e)
         pass

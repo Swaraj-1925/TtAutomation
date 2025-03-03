@@ -35,7 +35,7 @@ async def root(user_id: str = Query("anonymous", description="User identifier"))
 async def home(user_id: str = Query("anonymous", description="User identifier")):
     tt_automation = TtAutomation(settings=settings, user_id=user_id)  # Pass user_id here
     data = get_all_emails(tt_automation,10)
-    return {"service": f"home {data}"}
+    return {"service":data}
 
 # if __name__ == '__main__':
 #     print_hi('PyCharm')
