@@ -1,0 +1,5 @@
+fastapi[standard]==0.115.11
+pydantic-settings~=2.8.1
+google-auth-oauthlib~=1.2.1
+google-api-python-client~=2.162.0
+protobuf~=5.29.3

@@ -1,16 +1,37 @@
-# This is a sample Python script.
+from fastapi import FastAPI, Query
+from fastapi.responses import RedirectResponse
+from fastapi import status
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from app.routes.g_auth import ga_router
+from app.routes.g_calender import gc_router
+from app.routes.g_gmail import gg_router
+from app.services.tt_automation import TtAutomation
+from app.settings import Settings
+
+app = FastAPI()
+app.include_router(gg_router)  # Include Gmail router
+app.include_router(gc_router)  # Include Calendar router
+app.include_router(ga_router)
+settings = Settings()
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+@app.get("/")
+async def root(user_id: str = Query("anonymous", description="User identifier")):
+    tt_automation = TtAutomation(settings=settings, user_id=user_id)  # Pass user_id here
+    service_response = tt_automation.get_service()  # No need to pass prefix separately
 
+    if service_response["code"] == status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
+        return RedirectResponse(url=service_response.get("data"))
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    if service_response["code"] == status.HTTP_200_OK:
+        print("Found service")
+        return {"service": "hello"}
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    return service_response, service_response["statusCode"]
+
+@app.get("/home")
+async def home(user_id: str = Query("anonymous", description="User identifier")):
+    return {"service": f"home {user_id}"}
+
+# if __name__ == '__main__':
+#     print_hi('PyCharm')
