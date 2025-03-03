@@ -1,4 +1,7 @@
 from typing import Optional, Dict, Any, List
+
+from googleapiclient.discovery import Resource as GoogleResource
+
 from app.constants import API_DETAILS
 from app.response import APIResponse
 from app.settings import Settings
@@ -10,23 +13,24 @@ class TtAutomation:
         """Initialize Google Services for Gmail and Calendar."""
         self.settings = settings
         self.services = GoogleServices(self.settings)
-        self.gmail_service = None
-        self.calendar_service = None
+        self.gmail_service:Optional[GoogleResource] = None
+        self.calendar_service:Optional[GoogleResource] = None
         self.SCOPE = API_DETAILS["gmail"]["scopes"]+API_DETAILS["calendar"]["scopes"]
         self.user_id = user_id or "default"
 
     def get_service(self):
         try:
-            services = self.services.get_service(scope=self.SCOPE, user_id=self.user_id)
-            if services.get("code")== status.HTTP_200_OK:
+            services_response = self.services.get_service(scope=self.SCOPE, user_id=self.user_id)
+            if services_response.get("code")== status.HTTP_200_OK:
+                services = services_response.get("data")
                 self.gmail_service = services.get("gmail")
                 self.calendar_service = services.get("calendar")
-                return APIResponse.success(services)
-            elif services.get("code")== status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
+                return APIResponse.success()
+            elif services_response.get("code")== status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
                 print("Authentication required")
-                return APIResponse.auth_required(redirect_url=services.get("data"))
+                return APIResponse.auth_required(redirect_url=services_response.get("data"))
             else:
-                print(f"Something went wrong: Status code {services.get('code')} Message: {services.get('message')}")
+                print(f"Something went wrong: Status code {services_response.get('code')} Message: {services_response.get('message')}")
                 return None
 
         except Exception as e:

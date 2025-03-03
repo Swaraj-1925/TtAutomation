@@ -5,6 +5,8 @@ from fastapi import status
 from app.routes.g_auth import ga_router
 from app.routes.g_calender import gc_router
 from app.routes.g_gmail import gg_router
+from app.services.gmail import get_all_emails
+from app.services.google_services import GoogleServices
 from app.services.tt_automation import TtAutomation
 from app.settings import Settings
 
@@ -31,7 +33,9 @@ async def root(user_id: str = Query("anonymous", description="User identifier"))
 
 @app.get("/home")
 async def home(user_id: str = Query("anonymous", description="User identifier")):
-    return {"service": f"home {user_id}"}
+    tt_automation = TtAutomation(settings=settings, user_id=user_id)  # Pass user_id here
+    data = get_all_emails(tt_automation,10)
+    return {"service": f"home {data}"}
 
 # if __name__ == '__main__':
 #     print_hi('PyCharm')
