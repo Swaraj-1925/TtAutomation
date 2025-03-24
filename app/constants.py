@@ -1,4 +1,8 @@
 # Define API details as class constants
+PG_USERNAME="postgres"
+PG_PASSWORD="postgres"
+PG_HOST="localhost:5432"
+PG_DATABASE="TtAutomation"
 GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",  # Read emails for timetables
     "https://www.googleapis.com/auth/gmail.modify",  # Manage processed timetables
@@ -23,3 +27,5 @@ ADMIN_EMAIL = [
     "admin-it@viit.ac.in"
 ]
 SEARCH_QUERY = f'from:{{{ " ".join(ADMIN_EMAIL)}}} "Time table" -Examination has:attachment'
+
+DB_URL = f"postgresql+asyncpg://{PG_USERNAME}:{PG_PASSWORD}@{PG_HOST}/{PG_DATABASE}"

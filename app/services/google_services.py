@@ -1,14 +1,14 @@
 import os
-from fastapi import status, Depends
+from fastapi import status
 from googleapiclient.discovery import build, Resource
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request as GoogleRequest
 from google.oauth2.credentials import Credentials
 from typing import List, Optional, Dict
 
-from app.response import APIResponse
+from app.utils.response import APIResponse
 from app.settings import Settings
-
+from app.utils.logger import logger
 
 class GoogleServices:
     def __init__(self, cfg: Settings):
@@ -22,14 +22,17 @@ class GoogleServices:
     def _saved_tokens(self, scopes: List[str], token_file_path: str) -> Optional[Dict[str, Resource]]:
         creds = None
         if os.path.exists(token_file_path):
+            logger.debug("Found existing token file")
             creds = Credentials.from_authorized_user_file(token_file_path, scopes)
 
         if creds and creds.valid:
+            logger.debug("Returning existing tokens")
             gmail_service = build("gmail", "v1", credentials=creds)
             calendar_service = build("calendar", "v3", credentials=creds)
             return {"gmail": gmail_service, "calendar": calendar_service}
 
         if creds and creds.expired and creds.refresh_token:
+            logger.debug("Refreshing existing tokens")
             creds.refresh(GoogleRequest())
             with open(token_file_path, "w") as token:
                 token.write(creds.to_json())
@@ -57,18 +60,18 @@ class GoogleServices:
 
     def get_service(self,scope:List[str],user_id:str):
         token_file_path= os.path.join("tokens", f"{user_id}.json")
-        print(token_file_path)
         try:
             services = self._saved_tokens(scope, token_file_path)
-            print(services)
             if services:
+                logger.debug(f"Found Saved service for user: {user_id}")
                 return APIResponse.success(services)
             else:
+                logger.debug(f"No Saved service for user: {user_id}")
                 auth_url = self._get_auth_url(scope,state=user_id)
                 return APIResponse.auth_required(redirect_url=auth_url)
 
         except Exception as e:
-            print(f"Failed to create Google API service with error message: \n", e)
+            logger.error("Failed to create Google API service with error message: {}".format(e))
             if os.path.exists(token_file_path):
                 os.remove(token_file_path)
             return APIResponse.error("Unable to create Google API service", status.HTTP_401_UNAUTHORIZED)
@@ -83,5 +86,6 @@ class GoogleServices:
         flow.fetch_token(code=code)
         creds = flow.credentials
         with open(token_file_path, "w") as token:
+            logger.info(f"Writing token to file {user_id}")
             token.write(creds.to_json())
         return user_id
