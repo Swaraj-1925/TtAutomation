@@ -1,13 +1,17 @@
 import base64
 import os
+import re
 from typing import Optional
 
+import pandas as pd
 from googleapiclient.discovery import Resource as GoogleResource
+from pandas.core.interchange.dataframe_protocol import DataFrame
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.constants import API_DETAILS
 from app.db.models import User
+from app.utils.handle_file import save_tt
 from app.utils.response import APIResponse
 from app.settings import Settings
 from app.services.google_services import GoogleServices
@@ -72,7 +76,7 @@ class TtAutomation:
             logger.error("Failed to save user info with error message: {}".format(e))
             return None
 
-    def get_attachment(self,user_id:str,msg_id:str,attachment_id:str,file_name:str):
+    async def get_attachment(self,user_id:str,msg_id:str,attachment_id:str,user_info:dict):
         try:
             if not self.gmail_service:
                 self.gmail_service = self.get_service(user_id=user_id)
@@ -82,16 +86,22 @@ class TtAutomation:
                 id=attachment_id
             ).execute()
             file_data = base64.urlsafe_b64decode(attachment['data'])
-
+            saved_file_path = await save_tt(file_data=file_data,user_info=user_info)
             logger.debug(f"Attachment Received")
 
-            os.makedirs("attachments", exist_ok=True)
-            filepath = os.path.join("attachments", file_name)
-            with open(filepath, "wb") as f:
-                f.write(file_data)
-            logger.debug(f"Saved: {filepath}")
-            return APIResponse.success()
+            return saved_file_path
         except Exception as e:
             logger.error("Failed to get emails from Google API service with error message: {}".format(e))
             return None
-
+    def get_schedule(self,file_name_og:str,user_info:dict):
+        file_name = f"{user_info.get('department')}_{user_info.get('div')}_{user_info.get('year')}_att-{user_info.get("file_name_og")}"
+        saved_files = os.listdir("attachments")
+        logger.debug(f"Saved files: {saved_files}")
+        for file in saved_files:
+            cleaned_name = re.sub(r"date-\d{8}-\d{6}_", "", file)
+            logger.debug(f"Cleaned name: {cleaned_name}")
+            if cleaned_name == file_name:
+                logger.info(f"File {file_name} found")
+                return os.path.join("attachments", file)
+        logger.info(f"File {file_name} not found")
+        return None
