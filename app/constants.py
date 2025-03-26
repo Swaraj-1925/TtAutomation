@@ -29,3 +29,7 @@ ADMIN_EMAIL = [
 SEARCH_QUERY = f'from:{{{ " ".join(ADMIN_EMAIL)}}} "Time table" -Examination has:attachment'
 
 DB_URL = f"postgresql+asyncpg://{PG_USERNAME}:{PG_PASSWORD}@{PG_HOST}/{PG_DATABASE}"
+
+CREATOR_EMAIL = "swaraj.22210249@viit.ac.in'"
+TAG = "#TtAutomation"
+# TAG = "#CollegeSchedule"
