@@ -1,16 +1,18 @@
 import base64
 import os
 import re
+from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
-from googleapiclient.discovery import Resource as GoogleResource
+from googleapiclient.discovery import Resource as GoogleResource, Resource
 from pandas.core.interchange.dataframe_protocol import DataFrame
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.constants import API_DETAILS
+from app.constants import API_DETAILS, CREATOR_EMAIL, TAG
 from app.db.models import User
+from app.services.calendar import get_next_weekday, create_event
 from app.utils.handle_file import save_tt
 from app.utils.response import APIResponse
 from app.settings import Settings
@@ -57,13 +59,13 @@ class TtAutomation:
             user = results.scalars().first()
 
             if user:
-                return user.model_dump()
+                return APIResponse.success(user.model_dump())
             else:
                 logger.debug(f"No user found with username: {user_id}")
-                return None
+                return APIResponse.error(f"No user found with username: {user_id}")
         except Exception as e:
             logger.error("Failed to get user info with error message: {}".format(e))
-            return None
+            return APIResponse.error(f"Failed to get user info with error message: {str(e)}",)
 
     async def save_user_info(self,user:User,session:AsyncSession):
         try:
@@ -74,7 +76,7 @@ class TtAutomation:
             return APIResponse.success()
         except Exception as e:
             logger.error("Failed to save user info with error message: {}".format(e))
-            return None
+            return APIResponse.error(f"Failed to save user info with error message: {str(e)}",)
 
     async def get_attachment(self,user_id:str,msg_id:str,attachment_id:str,user_info:dict):
         try:
@@ -89,19 +91,77 @@ class TtAutomation:
             saved_file_path = await save_tt(file_data=file_data,user_info=user_info)
             logger.debug(f"Attachment Received")
 
-            return saved_file_path
+            return APIResponse.success(saved_file_path)
         except Exception as e:
             logger.error("Failed to get emails from Google API service with error message: {}".format(e))
-            return None
-    def get_schedule(self,file_name_og:str,user_info:dict):
-        file_name = f"{user_info.get('department')}_{user_info.get('div')}_{user_info.get('year')}_att-{user_info.get("file_name_og")}"
-        saved_files = os.listdir("attachments")
-        logger.debug(f"Saved files: {saved_files}")
-        for file in saved_files:
-            cleaned_name = re.sub(r"date-\d{8}-\d{6}_", "", file)
-            logger.debug(f"Cleaned name: {cleaned_name}")
-            if cleaned_name == file_name:
-                logger.info(f"File {file_name} found")
-                return os.path.join("attachments", file)
-        logger.info(f"File {file_name} not found")
-        return None
+            return APIResponse.error(f"Failed to get emails from Google API service with error message: {e}",)
+    def get_schedule(self,user_info:dict):
+        try:
+            file_name = f"{user_info['data'].get('department')}_{user_info['data'].get('div')}_{user_info['data'].get('year')}_att-{user_info.get('file_name_og')}"
+            saved_files = os.listdir("attachments")
+            logger.debug(f"Saved files: {saved_files}")
+            for file in saved_files:
+                cleaned_name = re.sub(r"date-\d{8}-\d{6}_", "", file)
+                logger.debug(f"Cleaned name: {cleaned_name}")
+                if cleaned_name == file_name:
+                    logger.info(f"File {file_name} found")
+                    return APIResponse.success(data=os.path.join(f"attachments", file))
+                    # return os.path.join("attachments", file)
+            logger.info(f"File {file_name} not found")
+            return APIResponse.error(f"File {file_name} not found")
+        except Exception as e:
+            logger.error("Failed to get schedules with error message: {}".format(e))
+            return APIResponse.error(f"Failed to get schedules with error message: {e}")
+
+    async def schedule_tt(self,schedule,calendar_id="primary"):
+
+        try:
+            today = datetime.today()
+            days_until_monday = (0 - today.weekday()) % 7  # Find next Monday
+            week_start = today + timedelta(days=days_until_monday)
+
+            for day_schedule in schedule:
+                for day, events in day_schedule.items():
+                    event_date = get_next_weekday(week_start, day)
+                    for event in events:
+                        await create_event(
+                            service=self.calendar_service,
+                            calendar_id=calendar_id,
+                            event_date=event_date,
+                            start_time=event["start_time"],
+                            end_time=event["end_time"],
+                            subject=event["name"],
+                            # day_code=day
+                        )
+                    logger.info(f"Created event {day}")
+            return APIResponse.success()
+        except Exception as e:
+            logger.error("Failed to schedule tt event: {}".format(e))
+
+    async def delete_tt(self,calendar_id="primary",):
+        try:
+            events_result = self.calendar_service.events().list(
+                calendarId=calendar_id,
+                q=TAG,  # Free-text search for the tag
+                singleEvents=False  # Return recurring event series, not individual instances
+            ).execute()
+
+            events = events_result.get('items', [])
+            if not events:
+                logger.info("No events found with the specified tag.")
+                return
+
+            for event in events:
+                description = event.get('description', '')
+                if description.endswith(f"\n{TAG}"):
+                    self.calendar_service.events().delete(
+                        calendarId=calendar_id,
+                        eventId=event['id']
+                    ).execute()
+
+                    logger.info(f"Deleted event summary: {event['summary']}  And ID: {event['id']}")
+                else:
+                    logger.debug(f"Skipped event summary: {event['summary']}  And ID: {event['id']}: description does not match.")
+        except Exception as e:
+            logger.error(f"An error occurred: {str(e)}")
+            raise

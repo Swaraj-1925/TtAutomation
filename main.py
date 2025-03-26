@@ -1,4 +1,3 @@
-import datetime
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Query ,Depends
@@ -11,11 +10,9 @@ from app.db.session import get_session, create_db_and_tables
 from app.routes.g_auth import ga_router
 from app.routes.g_calender import gc_router
 from app.routes.g_gmail import gg_router
-from app.services.gmail import get_all_emails
-from app.services.google_services import GoogleServices
+from app.services.gmail import get_all_emails, extract_schedule
 from app.services.tt_automation import TtAutomation
 from app.settings import Settings
-from app.utils.handle_file import extract_data_from_xlsx
 from app.utils.logger import logger
 from app.utils.response import APIResponse
 
@@ -69,14 +66,17 @@ async def home(user_id: str = Query("anonymous", description="User identifier"),
         file_name_og = data[0].get("attachments", [])[0].get("filename")
         user_info.update({"file_name_og": file_name_og})
 
-        schedule = tt_automation.get_schedule(file_name_og=file_name_og,user_info=user_info)
-        if schedule:
-            extracted_data = await extract_data_from_xlsx(file_name=schedule, user_info=user_info)
+        schedule = tt_automation.get_schedule(user_info=user_info)
+        logger.debug(schedule)
+
+        if schedule.get('code')==status.HTTP_200_OK:
+            extracted_data = await extract_schedule(file_path=schedule.get('data'), user_info=user_info)
         else:
             saved_file_path = await tt_automation.get_attachment(user_id=user_id, msg_id=msg_id,
                                                                  attachment_id=attachment_id, user_info=user_info)
-            extracted_data = await extract_data_from_xlsx(file_name=saved_file_path, user_info=user_info)
-
+            extracted_data = await extract_schedule(file_path=saved_file_path, user_info=user_info)
+            await tt_automation.delete_tt()
+            await tt_automation.schedule_tt(extracted_data)
         return APIResponse.success(extracted_data)
     else:
         logger.warning("No data")

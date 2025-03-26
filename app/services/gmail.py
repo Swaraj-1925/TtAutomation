@@ -1,9 +1,13 @@
+import re
 from typing import List, Any
 
+import pandas as pd
 from googleapiclient.discovery import Resource
+from pandas.core.interchange.dataframe_protocol import DataFrame
 
 from app.constants import SEARCH_QUERY
 from app.services.tt_automation import TtAutomation
+from app.utils.handle_file import extract_data_from_xlsx
 from app.utils.logger import logger
 
 def extract_email_data(service: Resource, messages) -> List[Any]:
@@ -75,3 +79,55 @@ def get_all_emails(automation: TtAutomation,user_id:str,max_results: int = 10):
         return None
 
 
+def parse_time(time_str):
+    time_str = time_str.strip()
+    pattern = re.compile(r'(\d+\.\d{2}) ?(am|pm)', re.IGNORECASE)
+    match = pattern.match(time_str)
+    if match:
+        time_part = match.group(1)
+        meridian = match.group(2).lower()
+        hour, minute = map(int, time_part.split('.'))
+        if meridian == 'am':
+            if hour == 12:
+                hour = 0
+        elif meridian == 'pm':
+            if hour != 12:
+                hour += 12
+        return f"{hour:02d}:{minute:02d}"
+    return time_str
+def extract_day(day_row,day,target_columns):
+    schedule_items = []
+    id_counter=1
+    for _, row in day_row.iterrows():
+        time_range = row['TIME']
+        time_range = str(time_range).strip()
+        time_range = re.sub(r'\s*-\s*', '-', time_range)
+        try:
+            start_str, end_str = time_range.split('-')
+            start_time = parse_time(start_str)
+            end_time = parse_time(end_str)
+        except ValueError:
+            logger.error(f"Invalid time range: {time_range}")
+            continue
+        subject = row[target_columns]
+        if pd.notna(subject) and subject.strip() != '' and subject.strip().lower() != 'lunch break':
+            schedule_items.append({
+                'id': id_counter,
+                'start_time': start_time,
+                'end_time': end_time,
+                'name': subject.strip()
+            })
+            id_counter += 1
+    return {day: schedule_items}
+
+async def extract_schedule(file_path: str, user_info: dict):
+    target_columns = f"{user_info['data'].get('year')} {user_info['data'].get('div')}"
+    tt:DataFrame = await extract_data_from_xlsx(file_path=file_path,target_columns=target_columns)
+    unique_days = tt['DAY'].dropna().unique()
+    result = []
+    for day in unique_days:
+        day_rows = tt[tt['DAY'] == day]
+        day_tt= extract_day(day_rows, day, target_columns)
+        # logger.debug(f"Found {len(day_tt)} rows for day {day_tt}")
+        result.append(day_tt)
+    return result
