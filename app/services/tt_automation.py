@@ -81,7 +81,7 @@ class TtAutomation:
     async def get_attachment(self,user_id:str,msg_id:str,attachment_id:str,user_info:dict):
         try:
             if not self.gmail_service:
-                self.gmail_service = self.get_service(user_id=user_id)
+                self.get_service(user_id=user_id)
             attachment = self.gmail_service.users().messages().attachments().get(
                 userId='me',
                 messageId=msg_id,
@@ -138,8 +138,11 @@ class TtAutomation:
         except Exception as e:
             logger.error("Failed to schedule tt event: {}".format(e))
 
-    async def delete_tt(self,calendar_id="primary",):
+    async def delete_tt(self,user_id:str,calendar_id="primary"):
         try:
+
+            if not self.calendar_service:
+                self.get_service(user_id=user_id)
             events_result = self.calendar_service.events().list(
                 calendarId=calendar_id,
                 q=TAG,  # Free-text search for the tag

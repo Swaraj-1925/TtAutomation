@@ -122,6 +122,7 @@ def extract_day(day_row,day,target_columns):
 
 async def extract_schedule(file_path: str, user_info: dict):
     target_columns = f"{user_info['data'].get('year')} {user_info['data'].get('div')}"
+    logger.warning(f"Extracting Schedule from {file_path}")
     tt:DataFrame = await extract_data_from_xlsx(file_path=file_path,target_columns=target_columns)
     unique_days = tt['DAY'].dropna().unique()
     result = []

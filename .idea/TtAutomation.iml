@@ -6,6 +6,10 @@
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (TtAutomation)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="@tailwindcss" level="application" />
+    <orderEntry type="library" name="@themesberg/flowbite" level="application" />
+    <orderEntry type="library" name="alpine" level="application" />
+    <orderEntry type="library" name="zxcvbn" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="$MODULE_DIR$/requirements.txt" />

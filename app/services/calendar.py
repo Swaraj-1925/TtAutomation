@@ -37,7 +37,7 @@ async def create_event(service: Resource,calendar_id, event_date, start_time, en
             "dateTime": start_datetime.isoformat(),
             "timeZone": "Asia/Kolkata"
         },
-        "end": {
+            "end": {
             "dateTime": end_datetime.isoformat(),
             "timeZone": "Asia/Kolkata"
         },

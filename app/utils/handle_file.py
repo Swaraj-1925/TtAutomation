@@ -10,7 +10,7 @@ from app.utils.logger import logger
 async def save_tt(user_info:dict,file_data:bytes):
     logger.debug(user_info)
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    file_name = f"{user_info.get('department')}_{user_info.get('div')}_{user_info.get('year')}_date-{current_time}_att-{user_info.get("file_name_og")}"
+    file_name = f"{user_info['data'].get('department')}_{user_info['data'].get('div')}_{user_info['data'].get('year')}_date-{current_time}_att-{user_info.get("file_name_og")}"
 
     os.makedirs("attachments", exist_ok=True)
     filepath = os.path.join("attachments", file_name)
@@ -21,6 +21,7 @@ async def save_tt(user_info:dict,file_data:bytes):
 
 
 async def extract_data_from_xlsx(file_path: str,target_columns):
+    logger.warning(f"Extracting data from {file_path}")
     if not file_path.endswith(".xlsx"):
         logger.error(f"File {file_path} is not a .xlsx file")
         raise Exception(f"File {file_path} is not a .xlsx file")

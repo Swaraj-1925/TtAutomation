@@ -15,7 +15,7 @@ from app.services.tt_automation import TtAutomation
 from app.settings import Settings
 from app.utils.logger import logger
 from app.utils.response import APIResponse
-
+from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_db_and_tables()  # Initialize DB
@@ -27,6 +27,13 @@ app.include_router(gc_router)  # Include Calendar router
 app.include_router(ga_router)
 settings = Settings()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change this for security
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 async def root(
         user_id: str = Query("anonymous", description="User Name"),
@@ -35,7 +42,7 @@ async def root(
         year:str = Query(None, description="Student Year"),
         session:AsyncSession = Depends(get_session),
 ):
-
+    logger.info("Init")
     tt_automation = TtAutomation(settings=settings)
     service_response = tt_automation.get_service(user_id=user_id)
 
@@ -47,7 +54,7 @@ async def root(
     )
     await tt_automation.save_user_info(new_user,session=session)
     if service_response["code"] == status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
-        return RedirectResponse(url=service_response.get("data"))
+        return APIResponse.auth_required(redirect_url=service_response.get("data"))
 
     if service_response["code"] == status.HTTP_200_OK:
         logger.debug(f"Found service")
@@ -74,10 +81,23 @@ async def home(user_id: str = Query("anonymous", description="User identifier"),
         else:
             saved_file_path = await tt_automation.get_attachment(user_id=user_id, msg_id=msg_id,
                                                                  attachment_id=attachment_id, user_info=user_info)
-            extracted_data = await extract_schedule(file_path=saved_file_path, user_info=user_info)
-            await tt_automation.delete_tt()
-            await tt_automation.schedule_tt(extracted_data)
+            extracted_data = await extract_schedule(file_path=saved_file_path.get('data'), user_info=user_info)
+
+        await tt_automation.delete_tt(user_id=user_id)
+        await tt_automation.schedule_tt(extracted_data)
         return APIResponse.success(extracted_data)
     else:
         logger.warning("No data")
         return APIResponse.error("Found no emails",status_code=status.HTTP_204_NO_CONTENT)
+
+@app.get("/delete")
+async def delete(user_id: str = Query("anonymous", description="User identifier"),session: AsyncSession =Depends(get_session)):
+    tt_automation = TtAutomation(settings=settings)
+    user_info = await tt_automation.get_user_info(user_id=user_id,session=session)
+    if user_info:
+        await tt_automation.delete_tt(user_id=user_id)
+        return APIResponse.success("All data deleted",status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        logger.warning("No user found with id: {}".format(user_id))
+        return APIResponse.error("We were unable to find you on our server",status_code=status.HTTP_204_NO_CONTENT)
+

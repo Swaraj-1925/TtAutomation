@@ -5,6 +5,7 @@ from app.constants import API_DETAILS
 from app.services.tt_automation import TtAutomation
 from app.settings import Settings
 from app.utils.logger import logger
+from app.utils.response import APIResponse
 
 ga_router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -24,7 +25,9 @@ async def auth_callback(
         settings = Settings()
         tt_automation = TtAutomation(settings=settings)
         user_id = tt_automation.handle_auth_callback(code,user_id=state)
-        return RedirectResponse(url=f"/home?user_id={user_id}", status_code=status.HTTP_303_SEE_OTHER)
+        # return APIResponse.success({"user_id": user_id})
+        return RedirectResponse(url=f"http://localhost:5173/home?user_id={user_id}")
+        # return RedirectResponse(url=f"/home?user_id={user_id}", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         logger.error("Error handling auth callback \n{}".format(e))
         return {"error": str(e)}
