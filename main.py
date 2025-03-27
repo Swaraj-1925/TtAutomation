@@ -58,7 +58,7 @@ async def root(
 
     if service_response["code"] == status.HTTP_200_OK:
         logger.debug(f"Found service")
-        return {"service": "hello"}
+        return APIResponse.success()
 
     return service_response, service_response["statusCode"]
 

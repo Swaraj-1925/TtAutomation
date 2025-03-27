@@ -39,14 +39,14 @@ class TtAutomation:
                 self.calendar_service = services.get("calendar")
                 return APIResponse.success()
             elif services_response.get("code")== status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
-                logger.warning("Authentication failed, User needs to authenticate")
+                logger.error("Authentication failed, User needs to authenticate")
                 return APIResponse.auth_required(redirect_url=services_response.get("data"))
             else:
-                logger.error(f"Status code {services_response.get('code')} Message: {services_response.get('message')}")
+                logger.critical(f"Status code {services_response.get('code')} Message: {services_response.get('message')}")
                 return None
 
         except Exception as e:
-            logger.error("Failed to get Google API service with error message: {}".format(e))
+            logger.critical("Failed to get Google API service with error message: {}".format(e))
             return APIResponse.error(f"Service creation failed: {str(e)}",
                               status.HTTP_500_INTERNAL_SERVER_ERROR)
     def handle_auth_callback(self, code: str,user_id:str )->str:

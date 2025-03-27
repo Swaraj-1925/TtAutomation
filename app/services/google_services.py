@@ -43,6 +43,9 @@ class GoogleServices:
         return None
 
     def _get_auth_url(self, scopes:List[str],state: str = None) -> str:
+        if not self.cfg.GOOGLE_CLIENT_SECRET_FILE:
+            logger.critical("Client secret file not found")
+            raise FileNotFoundError("Client secret file not found, Put path in env")
         flow = Flow.from_client_secrets_file(
             self.cfg.GOOGLE_CLIENT_SECRET_FILE,
             scopes=scopes,
