@@ -12,7 +12,7 @@ At VIIT, Pune, the timetable is sent via email as an Excel sheet. This project a
 This project automates extracting the VIIT timetable from emails and integrating it with Google Calendar.
 
 **Expected Time Table Format:**  
-<a href="attachments/TIME-TABLE-  w.e.f 10-2-2025 V1[Uniq version info]__Expected_tt_format.xlsx">Sample Timetable</a>  
+<a href="attachments">Sample Timetable</a>  
 
 **Workflow Steps:**
 1. **Fetch Emails:** Identify and download timetable attachments.
