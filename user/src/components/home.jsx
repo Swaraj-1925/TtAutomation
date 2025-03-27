@@ -1,4 +1,4 @@
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 import {useEffect, useState} from "react";
 import Background from "../assets/83f8c7639382e6aaa7e15ee7958f31ea.jpg";
@@ -12,6 +12,7 @@ const Home = () => {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [deleteMessage, setDeleteMessage] = useState(null);
 
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -23,6 +24,11 @@ const Home = () => {
             if (userId) {
                 try {
                     const response = await axios.get(`http://localhost:8000/home?user_id=${userId}`);
+                    console.log(response);
+                    if (response.data.code !== 200) {
+                        alert("Wrong credentials or Try different email");
+                        navigate("/")
+                    }
                     setData(response.data);
                 } catch (err) {
                     setError(err.message);

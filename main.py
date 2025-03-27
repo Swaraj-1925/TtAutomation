@@ -52,11 +52,11 @@ async def root(
         year=year,
         div=division,
     )
-    await tt_automation.save_user_info(new_user,session=session)
     if service_response["code"] == status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
         return APIResponse.auth_required(redirect_url=service_response.get("data"))
 
     if service_response["code"] == status.HTTP_200_OK:
+        await tt_automation.save_user_info(new_user, session=session)
         logger.debug(f"Found service")
         return APIResponse.success()
 

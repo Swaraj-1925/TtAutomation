@@ -28,7 +28,7 @@ const InputForm = () => {
 
             if (res.code === 511){
                 window.location.href = res.data
-            }else {
+            }else if(res.code === 200) {
                     navigate(`/home?user_id=${formData.user_id}`);
             }
         } catch (error) {
