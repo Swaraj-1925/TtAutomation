@@ -4,68 +4,127 @@
 
 At VIIT, Pune, the timetable is sent via email as an Excel sheet. This project aims to automate the process of extracting the timetable and integrating it with a calendar.
 
-### Observations:
-1. **Email Filtering:**  
-   - The subject line for timetable emails follows the format:  
-     **`{Department_Name} Dept - Time Table {Version_Info}`**  
-   - To improve accuracy, we can add another filter:  
-     - The sender should be **`admin-{Department_Name}@viit.ac.in`** (Admin Group).
 
-2. **Attachment Identification:**  
-   - Sometimes, the email contains multiple attachments.  
-   - The timetable file:  
-     - Has the **same name** as the email subject.  
-     - It Is always in **Excel (.xlsx) format**.
 
-3. **Excel File Structure:**  
-   - The file contains:  
-     - **Columns for each class.**  
-     - **One column for days.**  
-     - **One column for time slots.**  
-   - The data needs to be grouped by **days of the week** (seven groups for 7 days).  
-   - Convert the extracted data into **datetime format**.
+## **Setup Guide**
 
-4. **Automation Process:**  
-   - Read the **email and extract the timetable file**.  
-   - Process the **Excel data** and format it correctly.  
-   - Use **Google Calendar API** to upload events for students/teachers.  
-   - Set **automatic reminders** (e.g., 10-minute reminders before each class).  
+### **1. Process Overview**
+This project automates extracting the VIIT timetable from emails and integrating it with Google Calendar.
+
+**Expected Time Table Format:**  
+<a href="attachments">Sample Timetable</a>  
+
+**Workflow Steps:**
+1. **Fetch Emails:** Identify and download timetable attachments.
+2. **Process Excel File:** Extract and format timetable data.
+3. **Integrate with Google Calendar:** Create and manage events.
+
+### **2. Google Cloud Setup**
+#### **Step 1: Create a Project in Google Cloud Console**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/).
+2. Click **New Project** and enter the project name (`TtAutomation`).
+3. Enable **Google Calendar API** and **Gmail API**.
+
+#### **Step 2: Setup OAuth Credentials**
+1. Navigate to **APIs & Services > Credentials**.
+2. Click **Create Credentials > OAuth Client ID**.
+3. Choose "Web Application" and add Authorized JavaScript origins. for fastapi `http://localhost:8000 ` and react `http://localhost:5173`
+4. Add Authorized redirect URIs as `http://localhost:8000/auth/callback`
+5. Download the **Client Secret JSON** file.
+6. Move the file to the project root (`TtAutomation/`) and set the path in `.env`:
+   ```env
+   GOOGLE_CLIENT_SECRET_FILE=path/to/client_secret.json
+   ```
+
+### **3. Project Setup**
+
+#### **Step 1: Install Dependencies**
+Open a terminal in the project root and run:
+
+**For Windows:**
+```sh
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**For Linux/macOS:**
+```sh
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### **Step 2: Start Backend (FastAPI)**
+```sh
+fastapi dev main.py 
+```
+
+#### **Step 3: Setup Frontend**
+1. Open a new terminal.
+2. Navigate to the `user/` directory:
+   ```sh
+   cd user
+   ```
+3. Install dependencies:
+   ```sh
+   npm i
+   ```
+4. Start the frontend:
+   ```sh
+   npm run dev
+   ```
+
+### **4. Automation Logic**
+
+#### **1. Email Filtering**
+- Subject Format: `{Department_Name} Dept - Time Table {Version_Info}`
+- Sender: `admin-{Department_Name}@viit.ac.in`
+
+#### **2. Attachment Handling**
+- Identify the **Excel (.xlsx) file**.
+- Match filename with the email subject.
+
+#### **3. Data Processing**
+- Extract timetable structure:
+  - **Columns:** Class schedules
+  - **Rows:** Days & Time slots
+- Convert to **datetime format** for calendar events.
+
+#### **4. Google Calendar Integration**
+- **Create/Update Events**
+
+
+### **5. API Endpoints Used**
+
+#### **Gmail API (Email Handling)**
+| Endpoint | Description |
+|----------|------------|
+| `GET /gmail/v1/users/{userId}/messages` | Fetches email messages. |
+| `GET /gmail/v1/users/{userId}/messages/{messageId}` | Retrieves email details & attachments. |
+| `GET /gmail/v1/users/{userId}/messages/{messageId}/attachments/{id}` | Downloads an attachment. |
+
+#### **Google Calendar API (Timetable Events)**
+| Endpoint | Description |
+|----------|------------|
+| `POST /calendar/v3/calendars/{calendarId}/events` | Adds timetable events. |
+| `PUT /calendar/v3/calendars/{calendarId}/events/{eventId}` | Updates an event. |
+| `DELETE /calendar/v3/calendars/{calendarId}/events/{eventId}` | Deletes an event. |
+
+### **6. Expected Output Screenshots**
+
+#### **1. Singup**
+<img src="https://github.com/user-attachments/assets/97dfb2d8-1170-4b1e-9252-2bb07e3d987d" width="450"/>
+
+#### **2. Automation done**
+<img src="https://github.com/user-attachments/assets/084bf3fe-e489-4b89-9b1d-65a051f54828" width="450"/>
+
+#### **3. Automation deleted**
+<img src="https://github.com/user-attachments/assets/8f7e8c53-e0e4-44ec-90c6-403e4ac952d2" width="450"/>
 
 ---
 
-## Permissions Required  
-To implement this automation, the following permissions are needed:
-
-- **Read emails** (to extract timetable attachments).  
-- **Create events** in Google Calendar.  
-- **Delete events** in Google Calendar (if updates are needed).  
-- **Access student year and department data** (to assign correct events).  
-
-
----
-
-## **APIs Used**  
-This project primarily uses **Google APIs** to automate the timetable processing. Below is a list of the APIs used along with their descriptions.  
-
-### **1. Gmail API** (For fetching timetable emails and downloading attachments)  
-| Endpoint | Description |  
-|----------|------------|  
-| `GET /gmail/v1/users/{userId}/messages` | Lists the messages in the user's mailbox. Can be filtered using search queries. |  
-| `GET /gmail/v1/users/{userId}/messages/{messageId}` | Retrieves details of a specific email, including subject, sender, and attachments. |  
-| `GET /gmail/v1/users/{userId}/messages/{messageId}/attachments/{id}` | Downloads an attachment (Excel file) from the specified email. |  
-
-### **2. Google Calendar API** (For creating and managing timetable events)  
-| Endpoint | Description |  
-|----------|------------|  
-| `GET /calendar/v3/users/me/calendarList` | Retrieves a list of all calendars accessible by the user. Helps determine where to upload events. |  
-| `POST /calendar/v3/calendars` | Creates a new calendar (e.g., "VIIT Academic Calendar"). Useful if a dedicated calendar is needed. |  
-| `POST /calendar/v3/calendars/{calendarId}/events` | Inserts a new event into the specified calendar (timetable entry). |  
-| `PUT /calendar/v3/calendars/{calendarId}/events/{eventId}` | Updates an existing event (for timetable changes). |  
-| `DELETE /calendar/v3/calendars/{calendarId}/events/{eventId}` | Deletes an event (for canceled classes or rescheduled lectures). |  
-
-### **3. Google OAuth 2.0 API** (For authentication and authorization)  
-| Endpoint | Description |  
-|----------|------------|  
-| `https://accounts.google.com/o/oauth2/auth` | Handles user authentication and authorization to grant access to Gmail and Calendar. |  
-| `https://oauth2.googleapis.com/token` | Exchanges an authorization code for an access token to make API requests. |  
+### **7. Additional Notes**
+- If you encounter errors, ensure all `.env` variables are correctly set.
+- Future enhancements include **auto-detection of timetable updates** ,**Set Reminders** (e.g., 10 minutes before class)
 
