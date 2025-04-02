@@ -12,6 +12,8 @@ const Home = () => {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [deleteMessage, setDeleteMessage] = useState(null);
 
+    const [activeButton, setActiveButton] = useState(false);
+
     const navigate = useNavigate();
     useEffect(() => {
         const fetchData = async () => {
@@ -30,6 +32,7 @@ const Home = () => {
                         navigate("/")
                     }
                     setData(response.data);
+                    setActiveButton(response.data["data"]["data"]["active"]);
                 } catch (err) {
                     setError(err.message);
                 } finally {

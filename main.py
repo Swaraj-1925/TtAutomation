@@ -100,7 +100,7 @@ async def home(user_id: str = Query("anonymous", description="User identifier"),
 
         await tt_automation.delete_tt(user_id=user_id)
         await tt_automation.schedule_tt(extracted_data,session=session,username=user_info)
-        return APIResponse.success(extracted_data)
+        return APIResponse.success(user_info)
     else:
         logger.warning("No data")
         return APIResponse.error("Found no emails",status_code=status.HTTP_204_NO_CONTENT)
