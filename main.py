@@ -1,15 +1,15 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Query ,Depends
-from fastapi.responses import RedirectResponse
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
-
+import asyncio
 from app.db.models import User
-from app.db.session import get_session, create_db_and_tables
+from app.db.session import get_session, create_db_and_tables, SessionLocal
 from app.routes.g_auth import ga_router
 from app.routes.g_calender import gc_router
 from app.routes.g_gmail import gg_router
+from app.services.background import start_background_service
 from app.services.gmail import get_all_emails, extract_schedule
 from app.services.tt_automation import TtAutomation
 from app.settings import Settings
@@ -19,7 +19,20 @@ from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_db_and_tables()  # Initialize DB
-    yield
+    session = SessionLocal()
+    logger.info("Initializing background service")
+    background_task = asyncio.create_task(start_background_service(session))
+    try:
+        yield
+    finally:
+        # Shutdown: Cancel the background task and close the session
+        background_task.cancel()
+        try:
+            await background_task
+        except asyncio.CancelledError:
+            logger.info("Background service cancelled")
+        await session.close()
+        logger.info("Shutting down lifespan")
     logger.info("Shutting down lifespan")
 app = FastAPI(lifespan=lifespan)
 app.include_router(gg_router)  # Include Gmail router
@@ -51,12 +64,14 @@ async def root(
         department=department,
         year=year,
         div=division,
+        active=True
     )
+
+    await tt_automation.save_user_info(new_user, session=session)
     if service_response["code"] == status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED:
         return APIResponse.auth_required(redirect_url=service_response.get("data"))
 
     if service_response["code"] == status.HTTP_200_OK:
-        await tt_automation.save_user_info(new_user, session=session)
         logger.debug(f"Found service")
         return APIResponse.success()
 
@@ -67,7 +82,7 @@ async def home(user_id: str = Query("anonymous", description="User identifier"),
     tt_automation = TtAutomation(settings=settings)
     data = get_all_emails(tt_automation,max_results=10,user_id=user_id)
     user_info = await tt_automation.get_user_info(user_id=user_id,session=session)
-    if data:
+    if data and user_info:
         msg_id = data[0].get("id")
         attachment_id = data[0].get("attachments", [])[0].get("attachmentId")
         file_name_og = data[0].get("attachments", [])[0].get("filename")
@@ -84,7 +99,7 @@ async def home(user_id: str = Query("anonymous", description="User identifier"),
             extracted_data = await extract_schedule(file_path=saved_file_path.get('data'), user_info=user_info)
 
         await tt_automation.delete_tt(user_id=user_id)
-        await tt_automation.schedule_tt(extracted_data)
+        await tt_automation.schedule_tt(extracted_data,session=session,username=user_info)
         return APIResponse.success(extracted_data)
     else:
         logger.warning("No data")

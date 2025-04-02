@@ -99,6 +99,7 @@ def extract_day(day_row,day,target_columns):
     schedule_items = []
     id_counter=1
     for _, row in day_row.iterrows():
+
         time_range = row['TIME']
         time_range = str(time_range).strip()
         time_range = re.sub(r'\s*-\s*', '-', time_range)
@@ -107,7 +108,8 @@ def extract_day(day_row,day,target_columns):
             start_time = parse_time(start_str)
             end_time = parse_time(end_str)
         except ValueError:
-            logger.error(f"Invalid time range: {time_range}")
+            if time_range != "nan":
+                logger.error(f"Invalid time range: {time_range}")
             continue
         subject = row[target_columns]
         if pd.notna(subject) and subject.strip() != '' and subject.strip().lower() != 'lunch break':

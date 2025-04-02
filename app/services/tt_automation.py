@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import os
 import re
@@ -6,7 +7,6 @@ from typing import Optional
 
 import pandas as pd
 from googleapiclient.discovery import Resource as GoogleResource, Resource
-from pandas.core.interchange.dataframe_protocol import DataFrame
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -96,6 +96,12 @@ class TtAutomation:
             logger.error("Failed to get emails from Google API service with error message: {}".format(e))
             return APIResponse.error(f"Failed to get emails from Google API service with error message: {e}",)
     def get_schedule(self,user_info:dict):
+        logger.debug(f"user_info: {user_info}")
+        try:
+            user_info['data']
+        except KeyError as e:
+            logger.error(f"User info dont key {e}")
+            user_info['data'] = user_info
         try:
             file_name = f"{user_info['data'].get('department')}_{user_info['data'].get('div')}_{user_info['data'].get('year')}_att-{user_info.get('file_name_og')}"
             saved_files = os.listdir("attachments")
@@ -113,8 +119,8 @@ class TtAutomation:
             logger.error("Failed to get schedules with error message: {}".format(e))
             return APIResponse.error(f"Failed to get schedules with error message: {e}")
 
-    async def schedule_tt(self,schedule,calendar_id="primary"):
-
+    async def schedule_tt(self,schedule,session,username,calendar_id="primary"):
+        logger.debug(f"Schedule: {username}")
         try:
             today = datetime.today()
             days_until_monday = (0 - today.weekday()) % 7  # Find next Monday
@@ -134,6 +140,7 @@ class TtAutomation:
                             # day_code=day
                         )
                     logger.info(f"Created event {day}")
+            # user = select(User).where(User.username == )
             return APIResponse.success()
         except Exception as e:
             logger.error("Failed to schedule tt event: {}".format(e))
@@ -168,3 +175,5 @@ class TtAutomation:
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")
             raise
+
+

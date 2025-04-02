@@ -7,3 +7,4 @@ class User(SQLModel, table=True):
     department: str
     year: str
     div:str
+    active: bool
