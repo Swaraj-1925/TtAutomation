@@ -10,7 +10,7 @@ from app.utils.logger import logger
 async def save_tt(user_info:dict,file_data:bytes):
     logger.debug(user_info)
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    file_name = f"{user_info['data'].get('department')}_{user_info['data'].get('div')}_{user_info['data'].get('year')}_date-{current_time}_att-{user_info.get("file_name_og")}"
+    file_name = f"{user_info['data'].get('department')}_{user_info['data'].get('div')}_{user_info['data'].get('year')}_date-{current_time}_att-{user_info.get('file_name_og')}"
 
     os.makedirs("attachments", exist_ok=True)
     filepath = os.path.join("attachments", file_name)
