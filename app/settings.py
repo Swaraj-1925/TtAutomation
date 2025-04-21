@@ -7,4 +7,5 @@ class Settings(BaseSettings):
     CALENDAR_NAME:Optional[str] = None
     JAVASCRIPT_ORIGIN:Optional[str] = None
     REDIRECT_URI:Optional[str] = None
+    DB_URL:Optional[str] = None
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
