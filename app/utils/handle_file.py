@@ -20,25 +20,36 @@ async def save_tt(user_info:dict,file_data:bytes):
     return filepath
 
 
-async def extract_data_from_xlsx(file_path: str,target_columns):
+async def extract_data_from_xlsx(file_path: str,target_column:str):
     logger.warning(f"Extracting data from {file_path}")
     if not file_path.endswith(".xlsx"):
         logger.error(f"File {file_path} is not a .xlsx file")
         raise Exception(f"File {file_path} is not a .xlsx file")
     tt = pd.read_excel(file_path, header=None)
-    logger.debug(target_columns)
     header_row = tt[tt[0] == 'DAY'].index[0]
     expected_columns = ['DAY', 'TIME', 'SY A', 'SY B', 'SY C', 'SY D', 'TY A', 'TY B', 'TY C', 'TY D', 'Btech A', 'Btech B']
     actual_columns = tt.iloc[header_row].tolist()
     if not set(expected_columns).issubset(set(actual_columns)):
         logger.warning(f"Found columns {actual_columns}")
         raise Exception(f"Header row does not match expected columns {expected_columns}")
+
     tt.columns = tt.iloc[header_row]
     tt = tt.iloc[header_row + 1:].reset_index(drop=True)
-    if target_columns not in tt.columns:
-        logger.error(f"Column {target_columns} not found in the Excel file")
-        raise Exception(f"Column {target_columns} not found in the Excel file")
-    tt = tt[['DAY', 'TIME', target_columns]]
+    if target_column not in tt.columns:
+        logger.error(f"Column {target_column} not found in the Excel file")
+        raise Exception(f"Column {target_column} not found in the Excel file")
+    if target_column.startswith('TY'):
+        ty_columns = ['TY A', 'TY B', 'TY C', 'TY D']
+        for col in ty_columns:
+            if col not in tt.columns:
+                tt[col] = pd.NA
+        elective_mask = tt['TY A'].str.contains(r'(?i)PROFESS?IONAL ELECTIVE', na=False)
+        for col in ty_columns:
+            tt.loc[elective_mask, col] = tt.loc[elective_mask, col].where(
+                tt[col].notna() & (tt[col] != ""), "PROFESSIONAL ELECTIVE"
+            )
+
+    tt = tt[['DAY', 'TIME', target_column]]
     tt["TIME"] = tt["TIME"].astype(str).apply(lambda x: re.sub(r'\s*to\s*', ' - ', x.strip()))
     tt['DAY'] = tt['DAY'].fillna(method='bfill', limit=1)
     tt['DAY'] = tt['DAY'].ffill()

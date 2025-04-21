@@ -145,33 +145,48 @@ class TtAutomation:
         except Exception as e:
             logger.error("Failed to schedule tt event: {}".format(e))
 
-    async def delete_tt(self,user_id:str,calendar_id="primary"):
+    async def delete_tt(self, user_id: str, calendar_id="primary"):
         try:
-
             if not self.calendar_service:
                 self.get_service(user_id=user_id)
-            events_result = self.calendar_service.events().list(
-                calendarId=calendar_id,
-                q=TAG,  # Free-text search for the tag
-                singleEvents=False  # Return recurring event series, not individual instances
-            ).execute()
 
-            events = events_result.get('items', [])
-            if not events:
-                logger.info("No events found with the specified tag.")
-                return
+            # Use pageToken to handle pagination if there are many events
+            page_token = None
+            deleted_count = 0
 
-            for event in events:
-                description = event.get('description', '')
-                if description.endswith(f"\n{TAG}"):
-                    self.calendar_service.events().delete(
-                        calendarId=calendar_id,
-                        eventId=event['id']
-                    ).execute()
+            while True:
+                # Include the q parameter to filter events with the TAG
+                events_result = self.calendar_service.events().list(
+                    calendarId=calendar_id,
+                    # q=TAG,  # Free-text search for the tag
+                    singleEvents=False,  # Return recurring event series, not individual instances
+                    pageToken=page_token
+                ).execute()
 
-                    logger.info(f"Deleted event summary: {event['summary']}  And ID: {event['id']}")
-                else:
-                    logger.debug(f"Skipped event summary: {event['summary']}  And ID: {event['id']}: description does not match.")
+                events = events_result.get('items', [])
+                if not events:
+                    if page_token is None:
+                        logger.info("No events found with the specified tag.")
+                    break
+
+                for event in events:
+                    description = event.get('description', '')
+                    # Double-check that the event has our specific tag format
+                    if description and TAG in description:
+                        self.calendar_service.events().delete(
+                            calendarId=calendar_id,
+                            eventId=event['id']
+                        ).execute()
+                        deleted_count += 1
+                        logger.warning(
+                            f"Deleted event summary: {event.get('summary', 'No summary')} And ID: {event['id']}")
+
+                # Get the next page token
+                page_token = events_result.get('nextPageToken')
+                if not page_token:
+                    break
+
+            logger.info(f"Total events deleted: {deleted_count}")
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")
             raise
