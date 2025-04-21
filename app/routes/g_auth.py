@@ -25,8 +25,8 @@ async def auth_callback(
         settings = Settings()
         tt_automation = TtAutomation(settings=settings)
         user_id = tt_automation.handle_auth_callback(code,user_id=state)
-        # return APIResponse.success({"user_id": user_id})
-        return RedirectResponse(url=f"http://localhost:5173/home?user_id={user_id}")
+        return APIResponse.success({"user_id": user_id})
+        # return RedirectResponse(url=f"http://localhost:5173/home?user_id={user_id}")
         # return RedirectResponse(url=f"/home?user_id={user_id}", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         logger.error("Error handling auth callback \n{}".format(e))
