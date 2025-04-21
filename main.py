@@ -1,5 +1,6 @@
+import os
 from contextlib import asynccontextmanager
-
+import uvicorn
 from fastapi import FastAPI, Query ,Depends
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +13,6 @@ from app.db.session import get_session, create_db_and_tables, SessionLocal
 from app.routes.g_auth import ga_router
 from app.routes.g_calender import gc_router
 from app.routes.g_gmail import gg_router
-from app.services.background import start_background_service
 from app.services.gmail import get_all_emails, extract_schedule
 from app.services.tt_automation import TtAutomation
 from app.settings import Settings
@@ -119,7 +119,7 @@ async def delete(user_id: str = Query("anonymous", description="User identifier"
         logger.warning("No user found with id: {}".format(user_id))
         return APIResponse.error("We were unable to find you on our server",status_code=status.HTTP_204_NO_CONTENT)
 @app.get("/background_service")
-async def start_background_service(session:AsyncSession):
+async def start_background_service(session: AsyncSession =Depends(get_session)):
     tt_automation = TtAutomation(settings=settings)
     statement = select(User).where(User.active == True)
     result = await session.execute(statement)
@@ -152,3 +152,6 @@ async def start_background_service(session:AsyncSession):
 
 
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
