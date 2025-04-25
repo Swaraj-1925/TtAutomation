@@ -24,6 +24,8 @@ class GoogleServices:
         if os.path.exists(token_file_path):
             logger.debug("Found existing token file")
             creds = Credentials.from_authorized_user_file(token_file_path, scopes)
+        else:
+            logger.debug("Did not find existing token file")
 
         if creds and creds.valid:
             logger.debug("Returning existing tokens")
@@ -63,6 +65,7 @@ class GoogleServices:
 
     def get_service(self,scope:List[str],user_id:str):
         token_file_path= os.path.join("tokens", f"{user_id}.json")
+        logger.debug("token_file_path: {}".format(token_file_path))
         try:
             services = self._saved_tokens(scope, token_file_path)
             if services:
