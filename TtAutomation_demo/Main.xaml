@@ -1,0 +1,215 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" VisualBasic.Settings="{x:Null}" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uix="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>UiPath.Web</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+      <x:String>System.Security</x:String>
+      <x:String>UiPath.Web.Activities</x:String>
+      <x:String>System.Linq.Expressions</x:String>
+      <x:String>UiPath.UIAutomationNext.Enums</x:String>
+      <x:String>UiPath.UIAutomationCore.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Activities</x:String>
+      <x:String>UiPath.Shared.Activities</x:String>
+      <x:String>UiPath.Platform.ObjectLibrary</x:String>
+      <x:String>UiPath.Platform.SyncObjects</x:String>
+      <x:String>UiPath.UIAutomationNext.Models</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>System.Reflection.DispatchProxy</AssemblyReference>
+      <AssemblyReference>System.Reflection.TypeExtensions</AssemblyReference>
+      <AssemblyReference>System.Reflection.Metadata</AssemblyReference>
+      <AssemblyReference>System.Console</AssemblyReference>
+      <AssemblyReference>System.Security.Permissions</AssemblyReference>
+      <AssemblyReference>System.Configuration.ConfigurationManager</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>UiPath.Web</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>System.Runtime.InteropServices</AssemblyReference>
+      <AssemblyReference>UiPath.Web.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.Collections.NonGeneric</AssemblyReference>
+      <AssemblyReference>System.Linq.Expressions</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationCore</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.OCR.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Main Sequence" sap:VirtualizedContainerService.HintSize="832.0000000000001,1380" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Default="https://api.example.com/check" Name="rootRouteURL" />
+      <Variable x:TypeArguments="x:String" Default="https://api.example.com/check" Name="backgroundServiceRouteURL" />
+      <Variable x:TypeArguments="x:Int32" Name="responseStatus" />
+      <Variable x:TypeArguments="x:Boolean" Name="Cancle">
+        <Variable.Default>
+          <Literal x:TypeArguments="x:Boolean" />
+        </Variable.Default>
+      </Variable>
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:HttpClient Body="{x:Null}" ClientCertificate="{x:Null}" ClientCertificatePassword="{x:Null}" ConsumerKey="{x:Null}" ConsumerSecret="{x:Null}" ContinueOnError="{x:Null}" FileAttachments="{x:Null}" OAuth1Token="{x:Null}" OAuth1TokenSecret="{x:Null}" OAuth2Token="{x:Null}" Password="{x:Null}" ResourcePath="{x:Null}" ResponseAttachment="{x:Null}" ResponseHeaders="{x:Null}" Result="{x:Null}" SecureClientCertificatePassword="{x:Null}" SecurePassword="{x:Null}" StatusCode="{x:Null}" Username="{x:Null}" AcceptFormat="ANY" AuthenticationType="None" BodyFormat="application/xml" DisplayName="HTTP Request" EnableSSLVerification="True" EndPoint="[rootRouteURL]" sap:VirtualizedContainerService.HintSize="518.4,103.2" sap2010:WorkflowViewState.IdRef="HttpClient_7" Method="GET" TimeoutMS="6000">
+      <ui:HttpClient.Attachments>
+        <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+      </ui:HttpClient.Attachments>
+      <ui:HttpClient.Cookies>
+        <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+      </ui:HttpClient.Cookies>
+      <ui:HttpClient.Headers>
+        <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+      </ui:HttpClient.Headers>
+      <ui:HttpClient.Parameters>
+        <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+      </ui:HttpClient.Parameters>
+      <ui:HttpClient.UrlSegments>
+        <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+      </ui:HttpClient.UrlSegments>
+    </ui:HttpClient>
+    <If Condition="[responseStatus = 200]" sap:VirtualizedContainerService.HintSize="518.4,1253.6" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence DisplayName="Then" sap:VirtualizedContainerService.HintSize="516.8,655.2" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:InterruptibleDoWhile CurrentIndex="{x:Null}" Condition="[Cancle]" DisplayName="Do While" sap:VirtualizedContainerService.HintSize="483.2,595.2" sap2010:WorkflowViewState.IdRef="InterruptibleDoWhile_1">
+            <ui:InterruptibleDoWhile.Body>
+              <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="416,473.6" sap2010:WorkflowViewState.IdRef="Sequence_4">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <ui:HttpClient Body="{x:Null}" ClientCertificate="{x:Null}" ClientCertificatePassword="{x:Null}" ConsumerKey="{x:Null}" ConsumerSecret="{x:Null}" ContinueOnError="{x:Null}" FileAttachments="{x:Null}" OAuth1Token="{x:Null}" OAuth1TokenSecret="{x:Null}" OAuth2Token="{x:Null}" Password="{x:Null}" ResourcePath="{x:Null}" ResponseAttachment="{x:Null}" ResponseHeaders="{x:Null}" Result="{x:Null}" SecureClientCertificatePassword="{x:Null}" SecurePassword="{x:Null}" StatusCode="{x:Null}" Username="{x:Null}" AcceptFormat="ANY" AuthenticationType="None" BodyFormat="application/xml" DisplayName="HTTP Request" EnableSSLVerification="True" EndPoint="[backgroundServiceRouteURL]" sap:VirtualizedContainerService.HintSize="382.4,103.2" sap2010:WorkflowViewState.IdRef="HttpClient_8" Method="GET" TimeoutMS="6000">
+                  <ui:HttpClient.Attachments>
+                    <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+                  </ui:HttpClient.Attachments>
+                  <ui:HttpClient.Cookies>
+                    <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+                  </ui:HttpClient.Cookies>
+                  <ui:HttpClient.Headers>
+                    <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+                  </ui:HttpClient.Headers>
+                  <ui:HttpClient.Parameters>
+                    <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+                  </ui:HttpClient.Parameters>
+                  <ui:HttpClient.UrlSegments>
+                    <scg:Dictionary x:TypeArguments="x:String, InArgument(x:String)" />
+                  </ui:HttpClient.UrlSegments>
+                </ui:HttpClient>
+                <Delay Duration="00:10:00" sap:VirtualizedContainerService.HintSize="382.4,122.4" sap2010:WorkflowViewState.IdRef="Delay_1" />
+                <ui:InvokeCode ContinueOnError="{x:Null}" Code="' Create a new form&#xD;&#xA;Dim form As New System.Windows.Forms.Form()&#xD;&#xA;form.Text = &quot;Loop Control&quot;&#xD;&#xA;form.Size = New System.Drawing.Size(200, 100)&#xD;&#xA;&#xD;&#xA;' Create a button&#xD;&#xA;Dim button As New System.Windows.Forms.Button()&#xD;&#xA;button.Text = &quot;Stop Loop&quot;&#xD;&#xA;button.Location = New System.Drawing.Point(50, 20)&#xD;&#xA;&#xD;&#xA;' Handle the Click event&#xD;&#xA;AddHandler button.Click, Sub(sender As Object, e As EventArgs)&#xD;&#xA;                             Cancle = False&#xD;&#xA;                             form.Close()&#xD;&#xA;                         End Sub&#xD;&#xA;&#xD;&#xA;' Add the button to the form&#xD;&#xA;form.Controls.Add(button)&#xD;&#xA;&#xD;&#xA;' Show the form&#xD;&#xA;form.ShowDialog()&#xD;&#xA;" DisplayName="Invoke Code" sap:VirtualizedContainerService.HintSize="382.4,188" sap2010:WorkflowViewState.IdRef="InvokeCode_1">
+                  <ui:InvokeCode.Arguments>
+                    <InArgument x:TypeArguments="x:Boolean" x:Key="Cancle">
+                      <Literal x:TypeArguments="x:Boolean" />
+                    </InArgument>
+                  </ui:InvokeCode.Arguments>
+                </ui:InvokeCode>
+              </Sequence>
+            </ui:InterruptibleDoWhile.Body>
+          </ui:InterruptibleDoWhile>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="516.8,468.8" sap2010:WorkflowViewState.IdRef="Sequence_3">
+          <Sequence.Variables>
+            <Variable x:TypeArguments="x:String" Name="redirectURL">
+              <Variable.Default>
+                <Literal x:TypeArguments="x:String">https://example.com/error</Literal>
+              </Variable.Default>
+            </Variable>
+          </Sequence.Variables>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <uix:NApplicationCard AttachMode="ByInstance" DisplayName="Chrome New Tab" HealingAgentBehavior="Job" sap:VirtualizedContainerService.HintSize="483.2,408.8" sap2010:WorkflowViewState.IdRef="NApplicationCard_2" InteractionMode="DebuggerApi" ScopeGuid="830644b4-0f46-440b-a84d-1728be3559e8" Version="V2">
+            <uix:NApplicationCard.Body>
+              <ActivityAction x:TypeArguments="x:Object">
+                <ActivityAction.Argument>
+                  <DelegateInArgument x:TypeArguments="x:Object" Name="WSSessionData" />
+                </ActivityAction.Argument>
+                <Sequence DisplayName="Do" sap:VirtualizedContainerService.HintSize="449.6,168.8" sap2010:WorkflowViewState.IdRef="Sequence_6">
+                  <sap:WorkflowViewStateService.ViewState>
+                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                      <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    </scg:Dictionary>
+                  </sap:WorkflowViewStateService.ViewState>
+                  <uix:NGoToUrl DisplayName="Go To URL - " HealingAgentBehavior="SameAsCard" sap:VirtualizedContainerService.HintSize="416,107.2" sap2010:WorkflowViewState.IdRef="NGoToUrl_2" Url="[redirectURL]" Version="V4" />
+                </Sequence>
+              </ActivityAction>
+            </uix:NApplicationCard.Body>
+            <uix:NApplicationCard.TargetApp>
+              <uix:TargetApp Area="-9, -9, 1938, 1098" BrowserType="Chrome" ContentHash="XHepjtdYm0ikiqnUG_TrIQ" IconBase64="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" InformativeScreenshot="042be608b0997cfc782764e34c7161e7.png" Reference="7eWdASS4Rk21kiXUX8jnZg/yzqdJA3bz0qC2SvSipUFag" Selector="&lt;html app='chrome.exe' title='New Tab' /&gt;" Url="chrome://newtab/" Version="V2" />
+            </uix:NApplicationCard.TargetApp>
+          </uix:NApplicationCard>
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>
