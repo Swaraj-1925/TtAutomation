@@ -1,7 +1,7 @@
 {
   "name": "TtAutomation",
-  "projectId": "d69f7c71-ac37-48ca-b16c-ca4d5938395b",
-  "description": "time table automation for viit, SR project",
+  "projectId": "c658c0b6-48c3-4973-af3b-ef2ed38d193c",
+  "description": "time table automation SR project",
   "main": "Main.xaml",
   "dependencies": {
     "UiPath.System.Activities": "[25.2.1]",
@@ -18,7 +18,7 @@
     "netFrameworkLazyLoading": false,
     "isPausable": true,
     "isAttended": false,
-    "requiresUserInteraction": true,
+    "requiresUserInteraction": false,
     "supportsPersistence": false,
     "workflowSerialization": "DataContract",
     "excludedLoggedData": [
@@ -48,7 +48,7 @@
   "entryPoints": [
     {
       "filePath": "Main.xaml",
-      "uniqueId": "75540d42-bf9e-4502-af5a-6948feb04fa1",
+      "uniqueId": "967f84a5-0ea8-4025-bed1-e089b1fbc584",
       "input": [],
       "output": []
     }
@@ -56,5 +56,5 @@
   "isTemplate": false,
   "templateProjectData": {},
   "publishData": {},
-  "targetFramework": "Windows"
+  "targetFramework": "Portable"
 }
